@@ -26,25 +26,6 @@ imagen_salida = pygame.image.load('escape.jpg')
 imagen_ratón = pygame.transform.scale(imagen_ratón, (TAMAÑO_CELDA, TAMAÑO_CELDA))
 imagen_gato = pygame.transform.scale(imagen_gato, (TAMAÑO_CELDA, TAMAÑO_CELDA))
 imagen_salida = pygame.transform.scale(imagen_salida, (TAMAÑO_CELDA, TAMAÑO_CELDA))
-def dibujar_rejilla():
-    for x in range(0, TAMAÑO_PANTALLA, TAMAÑO_CELDA):
-        pygame.draw.line(pantalla, NEGRO, (x, 0), (x, TAMAÑO_PANTALLA))
-    for y in range(0, TAMAÑO_PANTALLA, TAMAÑO_CELDA):
-        pygame.draw.line(pantalla, NEGRO, (0, y), (TAMAÑO_PANTALLA, y))
-
-def dibujar_tablero(tablero):
-    for fila in range(tablero.tamaño):
-        for col in range(tablero.tamaño):
-            rect = pygame.Rect(col * TAMAÑO_CELDA, fila * TAMAÑO_CELDA, TAMAÑO_CELDA, TAMAÑO_CELDA)
-            pygame.draw.rect(pantalla, BLANCO, rect)
-            pygame.draw.rect(pantalla, NEGRO, rect, 1)
-
-            if (fila, col) == tablero.pos_ratón:
-                pantalla.blit(imagen_ratón, rect.topleft)
-            elif (fila, col) == tablero.pos_gato:
-                pantalla.blit(imagen_gato, rect.topleft)
-            elif (fila, col) == tablero.pos_salida:
-                pantalla.blit(imagen_salida, rect.topleft)
 
 # Clase Tablero para el tablero
 class Tablero:
@@ -88,7 +69,7 @@ class Tablero:
                 movimientos_posibles.append(nueva_pos)
         return movimientos_posibles
 
-    def juego_terminado(self, contador_turnos):
+    def es_juego_terminado(self, contador_turnos):
         if self.pos_gato == self.pos_ratón:
             return 'Gato Gana'
         elif self.pos_ratón == self.pos_salida:
@@ -101,10 +82,10 @@ def evaluar(tablero):
     return abs(tablero.pos_ratón[0] - tablero.pos_gato[0]) + abs(tablero.pos_ratón[1] - tablero.pos_gato[1])
 
 def minimax(tablero, profundidad, es_turno_ratón, alpha, beta):
-    estado_juego = tabler(contador_turnos)
+    estado_juego = tablero.es_juego_terminado(contador_turnos)
     if profundidad == 0 or estado_juego:
         if estado_juego == 'Gato Gana':
-            return -1000, None 
+            return -1000, None
         elif estado_juego == 'Ratón Gana':
             return 1000, None
         elif estado_juego == 'Empate':
@@ -140,7 +121,25 @@ def minimax(tablero, profundidad, es_turno_ratón, alpha, beta):
                 break
         return min_eval, mejor_movimiento
 
+def dibujar_rejilla():
+    for x in range(0, TAMAÑO_PANTALLA, TAMAÑO_CELDA):
+        pygame.draw.line(pantalla, NEGRO, (x, 0), (x, TAMAÑO_PANTALLA))
+    for y in range(0, TAMAÑO_PANTALLA, TAMAÑO_CELDA):
+        pygame.draw.line(pantalla, NEGRO, (0, y), (TAMAÑO_PANTALLA, y))
 
+def dibujar_tablero(tablero):
+    for fila in range(tablero.tamaño):
+        for col in range(tablero.tamaño):
+            rect = pygame.Rect(col * TAMAÑO_CELDA, fila * TAMAÑO_CELDA, TAMAÑO_CELDA, TAMAÑO_CELDA)
+            pygame.draw.rect(pantalla, BLANCO, rect)
+            pygame.draw.rect(pantalla, NEGRO, rect, 1)
+
+            if (fila, col) == tablero.pos_ratón:
+                pantalla.blit(imagen_ratón, rect.topleft)
+            elif (fila, col) == tablero.pos_gato:
+                pantalla.blit(imagen_gato, rect.topleft)
+            elif (fila, col) == tablero.pos_salida:
+                pantalla.blit(imagen_salida, rect.topleft)
 
 def jugar():
     global contador_turnos
@@ -160,7 +159,7 @@ def jugar():
         dibujar_tablero(tablero)
         pygame.display.flip()
 
-        estado_juego = tabler(contador_turnos)
+        estado_juego = tablero.es_juego_terminado(contador_turnos)
         if estado_juego:
             print(estado_juego)
             break
